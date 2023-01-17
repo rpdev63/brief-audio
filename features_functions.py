@@ -20,10 +20,10 @@ def compute_features(sig_t, sig_s, sig_c):
                          centroid,
                          RMS_sig,
                          std_sig,
-                         mean_skewness,
-                         mean_kurtosis,
-                         skewness,
-                         kurtosis,
+                        mean_skewness,
+                        mean_kurtosis,
+                        skewness,
+                        kurtosis,
                          shannon,
                          renyi,
                          rate_attack,
@@ -59,7 +59,6 @@ def compute_features(sig_t, sig_s, sig_c):
     features = []
     for feat_t in feat_temp:
         features.append(feature_functions[feat_t[0]](sig_t, feat_t[1]))
-        # print(feature_functions[feat_t[0]])
     for feat_s in feat_spec:
         features.append(feature_functions[feat_s[0]](sig_s, feat_s[1]))
         
@@ -108,7 +107,6 @@ def mean_skewness(signal, args):
     cent = centroid(signal, args)
     B = RMS_sig(signal, args)
     sk_sq = ((args[0] - cent)**3 * sig_sq).sum() / (E*B**3)
-    
     return np.sign(sk_sq)*np.sqrt(np.abs(sk_sq))
 
 def mean_kurtosis(signal, args):
@@ -116,7 +114,6 @@ def mean_kurtosis(signal, args):
     E = sig_sq.sum()
     cent = centroid(signal, args)
     B = RMS_sig(signal, args)
-    
     return np.sqrt(((args[0] - cent)**4 * sig_sq).sum() / (E*B**4))
 
 def skewness(signal, args):
