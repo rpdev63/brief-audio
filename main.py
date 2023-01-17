@@ -1,11 +1,11 @@
 import pandas as pd
-from sklearn import metrics
-from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
-from functions import get_data, generation_data
+from functions import generate_sounds, generate_dataset, predict_with_SVM
 
-generation_data(2,100, "2sec")
+duration = 2
+samples = 100
+directory = str(duration) +"sec/"
 
-df = get_data("2sec/",200)
-
-df.to_csv("son.csv")
+# generate_sounds(duration, samples, directory)
+generate_dataset(directory=directory)
+csv_file = 'data/' + directory + 'son.csv'
+predict_with_SVM(csv_file)
