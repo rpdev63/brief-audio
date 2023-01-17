@@ -19,7 +19,7 @@ def generation_data(duree, size, folder):
     
     for i in range(len(list_freq)):
         sinus = amp*np.sin(2*np.pi*(list_freq[i])*t)
-        file_sinus = 'data/'+folder+'/sinus'+str(i)
+        file_sinus = 'data/'+folder+'/sinus'+str(i)+'-f-'+str(list_freq[i])
         fichier_sinus = open(file_sinus, 'wb')
         pickle.dump(sinus, fichier_sinus)
         fichier_sinus.close()
