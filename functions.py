@@ -38,7 +38,6 @@ def generation_data(duree, size, folder):
 
 def get_data(directory, number) :
     data_dir = os.getcwd() + r"/data/" + directory + ""
-    print(data_dir)
     signals = os.listdir(data_dir)
     df = pd.DataFrame()
     i = 0
@@ -55,9 +54,16 @@ def get_data(directory, number) :
         sig_c = np.absolute(np.fft.fft(sig_f))
         features_list = []
         N_feat, features_list = compute_features(sig_t, sig_f[:sig_t.shape[0]//2], sig_c[:sig_t.shape[0]//2])
+        
+        if "sinus" in signal :
+            features_list.append("sinus")
+        elif "bb" in signal :
+            features_list.append("blanc")
+            
         df[signal] = features_list
         if i == number :
             break
+    df.rename(columns={df.columns[-1]:'target'})
     df_final = df.transpose()
     return df_final
 
