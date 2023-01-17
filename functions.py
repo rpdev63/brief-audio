@@ -24,12 +24,12 @@ def generation_data(duree, size, folder):
         pickle.dump(sinus, fichier_sinus)
         fichier_sinus.close()
         
-    # for i in range(len(list_freq)):
-    #     bb = amp*np.random.randn(duree*fe)
-    #     file_bb = 'data/'+folder+'/bb'+str(i)
-    #     fichier_bb = open(file_bb, 'wb')
-    #     pickle.dump(bb, fichier_bb)
-    #     fichier_bb.close()  
+    for i in range(len(list_freq)):
+        bb = amp*np.random.randn(duree*fe)
+        file_bb = 'data/'+folder+'/bb'+str(i)
+        fichier_bb = open(file_bb, 'wb')
+        pickle.dump(bb, fichier_bb)
+        fichier_bb.close()  
     
     print("Sons artifiels générés !")
 
@@ -63,9 +63,8 @@ def get_data(directory, number) :
         df[signal] = features_list
         if i == number :
             break
-    df.rename(columns={df.columns[-1]:'target'})
     df_final = df.transpose()
+    df_final.rename(columns={df.columns[-1]:'target'})
+
     return df_final
-
-
 
