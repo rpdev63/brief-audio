@@ -5,29 +5,39 @@ import numpy as np
 from features_functions import compute_features
 import pandas as pd
 import random
+from scipy.io.wavfile import write
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
+import warnings
 
 
-def generate_sounds(duree, size, folder):
+
+def generate_sounds(size, folder):
     
-    path = os.getcwd()+'/data/'
+    path = os.getcwd() + r'/data/'
+    if not os.path.exists(path):
+        os.makedirs(path)
     os.mkdir(path+folder)
+    print(f"Création du répertoire {path + folder}")
     fe = 44100
-    amp = 0.1
+    # amp = 0.1
     list_freq = [random.randint(0, 20000) for i in range(size)]
-    t = np.arange(0, duree, 1/fe)
+    list_amp = [random.randint(0, 100) for i in range(size)]
+    list_duree = [random.randint(1, 9) for i in range(size)]
+    
     
     for i in range(len(list_freq)):
-        sinus = amp*np.sin(2*np.pi*(list_freq[i])*t)
+        t = np.arange(0, list_duree[i], 1/fe)
+        sinus = (list_amp[i]/100)*np.sin(2*np.pi*(list_freq[i])*t)
         file_sinus = 'data/'+folder+'/sinus'+str(i)+'-f-'+str(list_freq[i])
         fichier_sinus = open(file_sinus, 'wb')
         pickle.dump(sinus, fichier_sinus)
         fichier_sinus.close()
         
     for i in range(len(list_freq)):
-        bb = amp*np.random.randn(duree*fe)
+        bb = (list_amp[i]/100)*np.random.randn(list_duree[i]*fe)
         file_bb = 'data/'+folder+'/bb'+str(i)
         fichier_bb = open(file_bb, 'wb')
         pickle.dump(bb, fichier_bb)
@@ -39,7 +49,11 @@ def generate_sounds(duree, size, folder):
 
 
 def generate_dataset(directory) :
-    print("Génération du dataframe / Lecture des fichiers audio")
+
+    #deactivate runtime warning ( division by zero )
+    warnings.filterwarnings("ignore", category=RuntimeWarning)
+
+    print("Génération du dataframe / Génération des fichiers .wav")
     data_dir = os.getcwd() + r"/data/" + directory + ""
     signals = os.listdir(data_dir)
     df = pd.DataFrame()
@@ -49,6 +63,9 @@ def generate_dataset(directory) :
         i += 1
         file = open(data_dir + signal, 'rb')
         input_sig = pickle.load(file)
+
+        # Write the signal to a .wav file
+        write(f"{data_dir + signal}.wav", 44100, input_sig)
 
         # Compute the signal in three domains
         sig_sq = input_sig**2
@@ -62,15 +79,16 @@ def generate_dataset(directory) :
             features_list.append("sinus")
         elif "bb" in signal :
             features_list.append("blanc")
-            
-        df[signal] = features_list
         
+        df_tmp = pd.DataFrame({signal:features_list})
+        df = pd.concat((df,df_tmp),axis=1)
+
     df_final = df.transpose()
     labels = [ "feature" + str(i) for i in range(N_feat + 1) ]
     df_final.columns = labels
     df_final.rename(columns={df_final.columns[-1]:'target'}, inplace=True)
     df_final.to_csv('data/'+directory+"son.csv", index=False)
-    print("fichier csv généré")
+    print("\nFichier csv généré ! \n")
     
 
 def predict_with_SVM(csv_file) :
@@ -86,10 +104,15 @@ def predict_with_SVM(csv_file) :
     print("{} colonnes ont été supprimés car les valeurs étaient aberrantes".format(tmp - df.shape[1]))
     y = df["target"]
     X = df.select_dtypes(include=['int', 'float'])
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25)
     print("Il y a {} données pour notre set de training.\nIl y a {} données pour notre set de test".format(len(X_train), len(X_test)))
 
+    
+
     #Entrainement avec le set de training
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
     model = SVC()
     model.fit(X_train, y_train)
 
