@@ -10,7 +10,7 @@ Created on Mon Oct 24 18:25:32 2022
 import numpy as np
 from math import inf
 
-def compute_features(sig_t, sig_s, sig_c):
+def compute_features(sig_t, sig_s, sig_c, feq):
     
     feature_functions = [min_sig,
                          max_sig,
@@ -32,7 +32,7 @@ def compute_features(sig_t, sig_s, sig_c):
                          threshold_crossing_rate
                          ]
     
-    t = np.linspace(0, (sig_t.shape[0] - 1)*(1/51200), sig_t.shape[0])
+    t = np.linspace(0, (sig_t.shape[0] - 1)*(1/feq), sig_t.shape[0])
     feat_temp = [(0, ()), (1, ()), (8, (t,)), (9, (t,)), (10, ()), (11, ()),
                  (12, (5,)), (12, (30,)), (12, (500,)), (13, (5,2)), (13, (30,2)),
                  (13, (500,2)), (13, (5,inf)), (13, (30,inf)), (13, (500,inf)),
@@ -46,7 +46,7 @@ def compute_features(sig_t, sig_s, sig_c):
                  (13, (30,inf)), (13, (500,inf)), (16, (0.05,)), (16, (0.1,)),
                  (16, (0.2,)), (17, (0.05,)), (17, (0.1,)), (17, (0.2,))]
     
-    t_c = np.linspace(0, (sig_c.shape[0] - 1)*(1/51200), sig_c.shape[0])
+    t_c = np.linspace(0, (sig_c.shape[0] - 1)*(1/feq), sig_c.shape[0])
     feat_ceps = [(1, ()), (2, ()), (4, ()), (5, (t_c,)), (6, (t_c,)), (7, ()), (8, (t_c,)),
                  (9, (t_c,)), (10, ()), (11, ()), (12, (5,)), (12, (30,)), (12, (500,)),
                  (13, (5,2)), (13, (30,2)), (13, (500,2)), (13, (5,inf)),

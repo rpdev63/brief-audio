@@ -11,6 +11,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
 import warnings
+import wave
+
 
 
 
@@ -62,7 +64,9 @@ def generate_dataset(directory) :
     for signal in signals : 
         i += 1
         file = open(data_dir + signal, 'rb')
+        print(file)
         input_sig = pickle.load(file)
+        
 
         # Write the signal to a .wav file
         write(f"{data_dir + signal}.wav", 44100, input_sig)
@@ -128,3 +132,59 @@ def predict_with_SVM(csv_file) :
     disp = metrics.ConfusionMatrixDisplay.from_predictions(y_test, predictions)
     disp.figure_.suptitle("Confusion Matrix")
     print(f"Matrice de confusion:\n{disp.confusion_matrix}")
+
+
+
+
+
+def generate_dataset_from_sounds() :
+
+    
+    #deactivate runtime warning ( division by zero )
+    warnings.filterwarnings("ignore", category=RuntimeWarning)
+
+    print("Génération du dataframe / Génération des fichiers .wav")
+    data_dir = os.getcwd() + r"/data/motorcycle_skateboard_sounds/"
+    signals = os.listdir(data_dir)
+    df = pd.DataFrame()
+    i = 0
+
+    for signal in signals : 
+        i += 1
+        with wave.open(data_dir + signal, 'r') as wav_file:
+        # Extract data and sample rate from WAV file
+            data = wav_file.readframes(-1)
+            sample_rate = wav_file.getparams().framerate
+       
+        input_sig = np.frombuffer(data, dtype=np.int16)
+        # print(input_sig)
+        input_sig = input_sig / 32767
+        
+
+        # Compute the signal in three domains
+        sig_sq = input_sig**2
+        sig_t = input_sig / np.sqrt(sig_sq.sum())
+        sig_f = np.absolute(np.fft.fft(sig_t))
+        sig_c = np.absolute(np.fft.fft(sig_f))
+        features_list = []
+        try : 
+            N_feat, features_list = compute_features(sig_t, sig_f[:sig_t.shape[0]//2], sig_c[:sig_t.shape[0]//2], sample_rate)
+        except ValueError :
+            print("ValueError: autodetected range of [nan, nan] is not finite")
+        else :
+            if "skateboard" in signal :
+                features_list.append("skateboard")
+            elif "motorcycle" in signal :
+                features_list.append("motorcycle")
+            df_tmp = pd.DataFrame({signal:features_list})
+            df = pd.concat((df,df_tmp),axis=1)
+        
+        
+
+    
+    df_final = df.transpose()
+    labels = [ "feature" + str(i) for i in range(N_feat + 1) ]
+    df_final.columns = labels
+    df_final.rename(columns={df_final.columns[-1]:'target'}, inplace=True)
+    df_final.to_csv(data_dir +"son.csv", index=False)
+    print("\nFichier csv généré ! \n")
