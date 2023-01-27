@@ -14,6 +14,7 @@ lexique = {
          '7':'Motorcycle',
 }         
 
+#interface
 while ( not trigger1 ):
     print('''Veuillez faire un choix ? (1, 2, 3 ou (q)uitter) ?
     1 : créer une base de donnée de bruits blancs / sinus
@@ -77,9 +78,10 @@ while ( not trigger1 ):
                         else :
                             print('\n' + error + '\n')                            
             case "3":
+                # 3 : créer une base de donnée avec tout le contenu de data/sound_library
                 generate_dataset("sound_library", all_files=True)       
             case "4":
-                # 3 : entrainer un modèle sur les données
+                # 4 : entrainer un modèle sur les données
                 datasets_dir = os.getcwd() + r"/data/datasets" 
                 datasets = os.listdir(datasets_dir)
                 dict_csv = {}

@@ -10,27 +10,29 @@ import numpy as np
 from joblib import dump
 
 
-
 def run_model(csv_file) :
     folder = os.getcwd() + "/data/datasets/"
     df = pd.read_csv(folder + csv_file)
+    #nettoyer
     df.dropna(axis='columns', inplace=True)
     tmp = df.shape[1]
     print("{} colonnes ont été supprimés car les valeurs étaient aberrantes".format(tmp - df.shape[1]))
+
+    #définir les features et les targets
     y = df["target"]
     X = df.select_dtypes(include=['int', 'float'])
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, stratify=y)
     print("Il y a {} données pour notre set de training.\nIl y a {} données pour notre set de test".format(len(X_train), len(X_test)))
-    unique = np.unique(y_train)
-    target1 = unique[0]
-    target2 = unique[1]
+
+    #Standardiser
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
+
+    #Evaluer avec 3 modèles de ML
     launch_model("SVC", SVC(), X_train, y_train, X_test, y_test)
     launch_model("RegressionLogistique", LogisticRegression(), X_train, y_train, X_test, y_test)
     launch_model("GaussianNB", GaussianNB(), X_train, y_train, X_test, y_test)
-
 
 
 def launch_model(name, model, X_train, y_train, X_test, y_test):
@@ -49,6 +51,6 @@ def launch_model(name, model, X_train, y_train, X_test, y_test):
     path = os.getcwd() + r"/models/"
     if not os.path.exists(path):
         os.makedirs(path)
-    dump(model, name)
+    dump(model, path + name)
 
     

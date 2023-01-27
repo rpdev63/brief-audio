@@ -38,7 +38,6 @@ def generate_dataset(directory, all_files=False) :
     data_dir = os.getcwd() + r"/data/" + directory  + "/"
     signals = os.listdir(data_dir)
     df = pd.DataFrame()
-    i = 0
     for signal in signals : 
         #get the target
         if all_files : 
@@ -53,23 +52,27 @@ def generate_dataset(directory, all_files=False) :
             target = re.sub(r'\d+', '', signal)
             target = re.sub(r'\..*', '', target)
         
-        #get 
+        #get signal
         sample_rate, input_sig = read(data_dir + signal)
         if (target != "sinus") & (target != "blanc"):
             input_sig = input_sig / 32767
-
+        
         # Compute the signal in three domains
         sig_sq = input_sig**2
         sig_t = input_sig / np.sqrt(sig_sq.sum())
         sig_f = np.absolute(np.fft.fft(sig_t))
         sig_c = np.absolute(np.fft.fft(sig_f))
         features_list = []
-        N_feat, features_list = compute_features(sig_t, sig_f[:sig_t.shape[0]//2], sig_c[:sig_t.shape[0]//2], sample_rate)
+        try :
+            N_feat, features_list = compute_features(sig_t, sig_f[:sig_t.shape[0]//2], sig_c[:sig_t.shape[0]//2], sample_rate)
+            #add target value        
+            features_list.append(target)        
+            df_tmp = pd.DataFrame({signal:features_list})
+            df = pd.concat((df, df_tmp),axis=1)
+        except ValueError:
+            print("erreur dans les calculs")
+
         
-        #add target value        
-        features_list.append(target)        
-        df_tmp = pd.DataFrame({signal:features_list})
-        df = pd.concat((df, df_tmp),axis=1)
 
     #finalize dataset and generate csv file
     df_final = df.transpose()
@@ -92,7 +95,7 @@ def classify_sounds(choice1, choice2, size=10):
 
     # write the path for the sound library
     sound_library_path = '/data/sound_library'
-
+    
     # choose two sound styles from the available labels
     label_1 = choice1
     label_2 = choice2
