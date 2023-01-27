@@ -25,7 +25,10 @@ https://docs.google.com/document/d/11LW6PRWsq84z4KHhM7VpuMjgivTahSS1VUZixkGnYHI/
 
   conda install --yes --file requirements.txt
   
+5 ) Suivez ce lien et copiez / coller le dossier data à la racine du projet https://drive.google.com/drive/folders/1Oz58S0TNKTBnC4ZvN3kVqvSA-wAEV1aR
+
+6 ) Mettez vos fichiers de sons dans le dossier data/sound_library
   
-5 ) Lancer l'interface
+7 ) Lancer l'interface
 
   python main.py
