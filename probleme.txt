@@ -1,2 +1,0 @@
-remplissage du dataframe : on se rend compte qu'on a des problèmes de division par 0 qui nous crée des valeurs infinies 
-solution : voir quelle data provoque des problèmes , afficher les htz utilisées pour créer le sinus
