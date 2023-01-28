@@ -34,6 +34,7 @@ def generate_sounds(size, folder):
 def generate_dataset(directory, all_files=False) :
     #deactivate runtime warning ( division by zero )
     warnings.filterwarnings("ignore", category=RuntimeWarning)
+    
     print("Génération d'un fichier .csv en cours")
     data_dir = os.getcwd() + r"/data/" + directory  + "/"
     signals = os.listdir(data_dir)
@@ -41,7 +42,7 @@ def generate_dataset(directory, all_files=False) :
     for signal in signals : 
         #get the target
         if all_files : 
-            df_ref = pd.read_csv(r'data/testing.csv')
+            df_ref = pd.read_csv(r'data/training.csv')
             name = signal[1:]
             try : 
                 row = df_ref.loc[df_ref['filename'] == name]
@@ -70,9 +71,7 @@ def generate_dataset(directory, all_files=False) :
             df_tmp = pd.DataFrame({signal:features_list})
             df = pd.concat((df, df_tmp),axis=1)
         except ValueError:
-            print("erreur dans les calculs")
-
-        
+            print("erreur dans les calculs")        
 
     #finalize dataset and generate csv file
     df_final = df.transpose()
@@ -88,7 +87,7 @@ def generate_dataset(directory, all_files=False) :
 
 def classify_sounds(choice1, choice2, size=10):
     # creat dataframe with csv file, choose your csv file
-    df = pd.read_csv(r'data/testing.csv')
+    df = pd.read_csv(r'data/training.csv')
 
     # file name in csv and file name in wav folder d'ont have excatly the same name, we need to add a Y at the beginning
     df['filename'] = df['filename'].map('Y{}'.format)
